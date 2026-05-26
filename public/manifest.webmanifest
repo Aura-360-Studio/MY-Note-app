@@ -1,0 +1,17 @@
+{
+  "name": "MY Note",
+  "short_name": "MY Note",
+  "description": "Terminal-style local-first note workspace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d12",
+  "theme_color": "#090d12",
+  "icons": [
+    {
+      "src": "/imges/MY Note logo for Fav.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

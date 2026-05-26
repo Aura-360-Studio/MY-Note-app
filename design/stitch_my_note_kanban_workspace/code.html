@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ffb4ab",
+                    "on-background": "#e5e2e1",
+                    "inverse-on-surface": "#313030",
+                    "primary-fixed-dim": "#00dbe9",
+                    "on-tertiary-fixed-variant": "#554500",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary-fixed": "#002022",
+                    "on-surface": "#e5e2e1",
+                    "on-tertiary": "#3b2f00",
+                    "surface-variant": "#353534",
+                    "surface-bright": "#393939",
+                    "tertiary": "#fff5de",
+                    "tertiary-container": "#fed639",
+                    "on-secondary-container": "#b4b5b5",
+                    "surface": "#131313",
+                    "outline": "#849495",
+                    "primary": "#dbfcff",
+                    "secondary-container": "#454747",
+                    "on-tertiary-fixed": "#231b00",
+                    "surface-dim": "#131313",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-container": "#715d00",
+                    "inverse-surface": "#e5e2e1",
+                    "on-primary-container": "#006970",
+                    "secondary": "#c6c6c7",
+                    "on-primary": "#00363a",
+                    "secondary-fixed": "#e2e2e2",
+                    "surface-container-low": "#1c1b1b",
+                    "outline-variant": "#3b494b",
+                    "on-error-container": "#ffdad6",
+                    "inverse-primary": "#006970",
+                    "surface-tint": "#00dbe9",
+                    "on-error": "#690005",
+                    "primary-container": "#00f0ff",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "surface-container-high": "#2a2a2a",
+                    "on-surface-variant": "#b9cacb",
+                    "background": "#131313",
+                    "error-container": "#93000a",
+                    "surface-container-highest": "#353534",
+                    "on-secondary-fixed-variant": "#454747",
+                    "primary-fixed": "#7df4ff",
+                    "on-primary-fixed-variant": "#004f54",
+                    "tertiary-fixed-dim": "#eac324",
+                    "on-secondary": "#2f3131",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "tertiary-fixed": "#ffe179"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-desktop": "64px",
+                    "base": "8px",
+                    "container-padding-mobile": "20px",
+                    "gutter": "24px",
+                    "section-gap": "80px",
+                    "unit": "4px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "xl": "48px",
+                    "sidebar_width": "240px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "label-sm": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "label-md": ["Geist"],
+                    "body-md": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "display": ["Geist"],
+                    "ui-value": ["JetBrains Mono"],
+                    "code-md": ["JetBrains Mono"],
+                    "label-caps": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.03em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "1.0", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "ui-value": ["12px", {"lineHeight": "1.0", "fontWeight": "400"}],
+                    "code-md": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0D0D0D; color: #e5e2e1; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 9999px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        .glass-panel { background: rgba(26, 26, 26, 0.85); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow-focus:focus-within { border-bottom-color: #00f0ff; box-shadow: 0 4px 20px -4px rgba(0, 240, 255, 0.15); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="font-body-lg overflow-hidden">
+<!-- Background Board View (Dimmed) -->
+<div class="fixed inset-0 flex transition-all duration-500 opacity-15 pointer-events-none">
+<!-- Sidebar -->
+<aside class="w-[240px] h-full bg-surface-container border-r border-outline-variant flex flex-col p-md gap-sm">
+<div class="flex items-center gap-sm mb-lg px-sm">
+<div class="w-8 h-8 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-sm">edit_note</span>
+</div>
+<div>
+<h2 class="font-headline-md text-body-md text-on-surface">MY Note</h2>
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Workspace</p>
+</div>
+</div>
+<nav class="flex flex-col gap-xs">
+<div class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container font-bold rounded-full">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-caps text-label-caps">Board</span>
+</div>
+<div class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-full">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-caps text-label-caps">Projects</span>
+</div>
+</nav>
+</aside>
+<!-- Main Content (Board) -->
+<main class="flex-1 p-lg overflow-hidden">
+<header class="flex justify-between items-center mb-xl">
+<h1 class="font-headline-lg text-headline-lg tracking-tight text-primary-fixed-dim">Project Alpha / Board</h1>
+<div class="flex gap-md">
+<div class="h-10 w-48 bg-surface-container border border-outline-variant rounded-full flex items-center px-md">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-sm">search</span>
+<span class="text-on-surface-variant font-body-sm">Search board...</span>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-3 gap-gutter h-full">
+<!-- Kanban Lanes -->
+<div class="flex flex-col gap-md">
+<div class="flex items-center justify-between px-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TO DO (4)</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/30 p-md rounded-lg">
+<div class="h-4 w-2/3 bg-surface-container-highest rounded-full mb-md"></div>
+<div class="h-3 w-full bg-surface-container rounded-full mb-sm"></div>
+<div class="h-3 w-5/6 bg-surface-container rounded-full"></div>
+</div>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex items-center justify-between px-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">IN PROGRESS (2)</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<div class="bg-surface-container-low border border-primary-container/30 p-md rounded-lg">
+<div class="h-4 w-3/4 bg-primary-container/20 rounded-full mb-md border border-primary-container/30"></div>
+<div class="h-3 w-full bg-surface-container rounded-full mb-sm"></div>
+<div class="h-3 w-4/6 bg-surface-container rounded-full"></div>
+</div>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex items-center justify-between px-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">DONE (12)</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">more_horiz</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/30 p-md rounded-lg opacity-50">
+<div class="h-4 w-1/3 bg-surface-container-highest rounded-full mb-md"></div>
+<div class="h-3 w-full bg-surface-container rounded-full"></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-xl bg-black/60 backdrop-blur-md">
+<!-- Notepad Window -->
+<div class="glass-panel w-full max-w-4xl h-[819px] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-500 rounded-xl overflow-hidden">
+<!-- Window Title Bar -->
+<div class="h-12 flex items-center justify-between px-lg border-b border-outline-variant/30 bg-surface-container-low/50">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">description</span>
+<span class="font-label-caps text-[11px] text-on-surface-variant uppercase tracking-widest">Notepad Premium Editor — Untitiled.md</span>
+</div>
+<div class="flex items-center h-full -mr-lg">
+<button class="h-full px-lg hover:bg-surface-variant/50 transition-colors flex items-center">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="h-full px-lg hover:bg-surface-variant/50 transition-colors flex items-center">
+<span class="material-symbols-outlined text-[18px]">check_box_outline_blank</span>
+</button>
+<button class="h-full px-lg hover:bg-error/20 hover:text-error transition-colors flex items-center" onclick="window.history.back()">
+<span class="material-symbols-outlined text-[22px]">close</span>
+</button>
+</div>
+</div>
+<!-- Editor Toolbar -->
+<div class="flex items-center gap-xl px-lg h-10 border-b border-outline-variant/20 text-on-surface-variant/80">
+<button class="font-label-md text-[13px] hover:text-on-surface transition-colors">File</button>
+<button class="font-label-md text-[13px] hover:text-on-surface transition-colors">Edit</button>
+<button class="font-label-md text-[13px] hover:text-on-surface transition-colors">Format</button>
+<button class="font-label-md text-[13px] hover:text-on-surface transition-colors">View</button>
+<button class="font-label-md text-[13px] hover:text-on-surface transition-colors">Help</button>
+<div class="flex-1"></div>
+<div class="flex gap-md items-center">
+<span class="material-symbols-outlined text-[18px] animate-pulse">sync</span>
+<span class="font-label-caps text-[11px] text-primary-fixed-dim tracking-widest">SAVED</span>
+</div>
+</div>
+<!-- Content Area -->
+<div class="flex-1 flex flex-col p-xl overflow-hidden bg-surface-container-lowest">
+<!-- Title Field -->
+<div class="mb-xl group glow-focus border-b border-outline-variant/10 transition-all duration-300">
+<input autofocus="" class="w-full bg-transparent border-none focus:ring-0 font-headline-lg text-headline-lg text-on-surface placeholder:text-on-surface-variant/20 p-0 mb-sm" placeholder="Task Title" type="text"/>
+</div>
+<!-- Markdown Content Area -->
+<div class="flex-1 relative">
+<textarea class="w-full h-full bg-transparent border-none focus:ring-0 font-code-md text-code-md text-on-surface-variant/90 leading-relaxed resize-none p-0 placeholder:text-on-surface-variant/10" placeholder="Start typing your markdown task details..."></textarea>
+</div>
+<!-- Formatting Hint/Status -->
+<div class="flex items-center justify-between mt-md pt-md border-t border-outline-variant/10">
+<div class="flex gap-xl items-center text-on-surface-variant/40 font-label-caps text-[11px] tracking-wider">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]">markdown</span>
+<span>MARKDOWN ENABLED</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]">spellcheck</span>
+<span>UTF-8</span>
+</div>
+</div>
+<div class="font-code-md text-ui-value text-on-surface-variant/50">
+                        Ln 1, Col 1
+                    </div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-lg flex justify-end gap-md border-t border-outline-variant/30 bg-surface-container-low/50">
+<button class="px-xl py-base border border-outline-variant text-on-surface-variant font-label-caps text-[11px] hover:bg-surface-variant transition-all active:scale-95 rounded-full uppercase tracking-widest">
+                    Discard
+                </button>
+<button class="px-xl py-base bg-primary-container text-on-primary-container font-label-caps text-[11px] hover:brightness-110 transition-all active:scale-95 shadow-[0_0_25px_-5px_rgba(0,240,255,0.4)] rounded-full uppercase tracking-widest border border-primary-fixed-dim/30">
+                    Save Task
+                </button>
+</div>
+</div>
+</div>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key === 't') {
+                document.querySelector('input').focus();
+            }
+            if (e.altKey && e.key === 'c') {
+                document.querySelector('textarea').focus();
+            }
+        });
+
+        const textarea = document.querySelector('textarea');
+        const status = document.querySelector('.text-ui-value');
+
+        function updateStatus() {
+            const lines = textarea.value.substr(0, textarea.selectionStart).split("\n").length;
+            const cols = textarea.value.substr(0, textarea.selectionStart).split("\n").pop().length + 1;
+            status.textContent = `Ln ${lines}, Col ${cols}`;
+        }
+
+        textarea.addEventListener('keyup', updateStatus);
+        textarea.addEventListener('click', updateStatus);
+    </script>
+</body></html>

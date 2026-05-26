@@ -1,0 +1,111 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-0: #131313;
+  --bg-1: #131313;
+  --panel: #201f1f;
+  --panel-2: #2a2a2a;
+  --border: #3b494b;
+  --text: #e5e2e1;
+  --muted: #b9cacb;
+  --accent: #00dbe9;
+  --accent-soft: #006970;
+  color: var(--text);
+  background-color: var(--bg-0);
+}
+
+:root.light-theme {
+  --bg-0: #f3f2f1;
+  --bg-1: #faf9f8;
+  --panel: #ffffff;
+  --panel-2: #eaeaea;
+  --border: #d2d0ce;
+  --text: #201f1f;
+  --muted: #605e5c;
+  --accent: #0078d4;
+  --accent-soft: #005a9e;
+  color: var(--text);
+  background-color: var(--bg-0);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Geist", "Segoe UI", system-ui, sans-serif;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+  color: var(--text);
+  letter-spacing: 0;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.mono-ui {
+  font-family: "JetBrains Mono", "Consolas", "Menlo", monospace;
+}
+
+/* Premium Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b494b;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00dbe9;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3b494b transparent;
+}
+
+.cm-editor,
+.cm-content,
+.cm-scroller {
+  font-family: inherit !important;
+}
+
+/* Premium Splash Screen Loading Animation */
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(-30%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

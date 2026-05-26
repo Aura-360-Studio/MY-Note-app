@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0f1520" />
+      <stop offset="1" stop-color="#080b12" />
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)" />
+  <rect x="24" y="24" width="144" height="144" rx="20" fill="#121924" stroke="#2b3443" stroke-width="4" />
+  <rect x="42" y="54" width="8" height="82" rx="4" fill="#38d98d" />
+  <text x="62" y="99" fill="#e8eef6" font-size="36" font-family="Consolas, Menlo, monospace" font-weight="700">MY</text>
+  <text x="62" y="130" fill="#8a95a6" font-size="20" font-family="Consolas, Menlo, monospace">Note</text>
+</svg>
