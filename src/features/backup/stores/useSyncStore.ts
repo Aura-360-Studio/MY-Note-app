@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { googleDriveService } from "../services/googleDrive.service";
 import { useNotesStore } from "../../notes/stores/useNotesStore";
+import { GOOGLE_CLIENT_ID } from "../../../shared/config/google";
 
 type SyncState = {
   accessToken: string | null;
@@ -26,12 +27,12 @@ const AUTO_SYNC_KEY = "mynote_auto_sync";
 const LAST_SYNC_KEY = "mynote_last_sync_time";
 
 export const useSyncStore = create<SyncState>((set, get) => {
-  let initialClientId = "";
+  let initialClientId = GOOGLE_CLIENT_ID;
   let initialAutoSync = false;
   let initialLastSync: string | null = null;
 
   if (typeof localStorage !== "undefined") {
-    initialClientId = localStorage.getItem(CLIENT_ID_KEY) || "";
+    initialClientId = localStorage.getItem(CLIENT_ID_KEY) || GOOGLE_CLIENT_ID;
     initialAutoSync = localStorage.getItem(AUTO_SYNC_KEY) === "true";
     initialLastSync = localStorage.getItem(LAST_SYNC_KEY);
   }

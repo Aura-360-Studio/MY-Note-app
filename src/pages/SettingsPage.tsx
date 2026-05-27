@@ -145,6 +145,7 @@ export function SettingsPage({
   // Legal modal states
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalModalType, setLegalModalType] = useState<LegalModalType | null>(null);
+  const [showAdvancedSync, setShowAdvancedSync] = useState(false);
 
   const openLegalModal = (type: LegalModalType) => {
     setLegalModalType(type);
@@ -286,7 +287,7 @@ export function SettingsPage({
               <div className="rounded-[20px] border border-[#3b494b]/40 bg-[#0c0c0e] overflow-hidden divide-y divide-[#3b494b]/20">
                 
                 {/* Credentials & Connection Info */}
-                <div className="p-5 flex flex-col gap-4 bg-[#131216]/60">
+                <div className="p-5 flex flex-col gap-5 bg-[#131216]/60">
                   <div className="flex items-start gap-4">
                     <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 border ${
                       accessToken
@@ -314,63 +315,83 @@ export function SettingsPage({
                     </div>
                   </div>
 
-                  {/* Google OAuth Client ID Configuration */}
-                  <div className="border-t border-[#3b494b]/10 pt-4 flex flex-col gap-2">
-                    <div className="flex flex-col gap-1.5 text-left">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-[#b9cacb] flex items-center gap-1">
-                        <Key size={10} className="text-[#00dbe9]" />
-                        Google OAuth Client ID
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={clientId}
-                          onChange={(e) => setClientId(e.target.value)}
-                          placeholder="E.g., 123456-abcdef.apps.googleusercontent.com"
-                          className="flex-1 rounded-lg border border-[#3b494b] bg-[#131317] px-3 py-2 text-xs outline-none focus:border-[#00dbe9] text-white placeholder:text-[#555] transition-all font-mono"
-                        />
-                        <a
-                          href="https://console.cloud.google.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3.5 py-2 bg-[#252429] hover:bg-[#2d2c34] border border-[#3b494b] rounded-lg text-[10px] font-bold text-[#00dbe9] uppercase tracking-wider transition whitespace-nowrap flex items-center gap-1"
-                        >
-                          Console <ExternalLink size={8} />
-                        </a>
-                      </div>
-                      <p className="text-[9px] text-[#849495] leading-normal">
-                        To initiate secure syncing, please supply your Google Cloud Client ID (make sure your domain is listed under Authorized JavaScript Origins).
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Connection Trigger Buttons */}
-                  <div className="flex items-center justify-end gap-3 border-t border-[#3b494b]/10 pt-4">
+                  {/* Connect / Disconnect Buttons row */}
+                  <div className="flex flex-col gap-3 items-center justify-center border-t border-[#3b494b]/10 pt-4 w-full">
                     {syncError && (
-                      <span className="text-[10px] text-rose-400 font-medium mr-auto max-w-[280px] text-left truncate" title={syncError}>
+                      <span className="text-[10px] text-rose-400 font-medium text-center w-full mb-1">
                         ⚠️ {syncError}
                       </span>
                     )}
 
                     {accessToken ? (
-                      <button
-                        onClick={disconnectDrive}
-                        className="px-5 py-2 bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 hover:text-rose-300 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition flex items-center gap-1.5"
-                      >
-                        <LogOut size={11} />
-                        Disconnect
-                      </button>
+                      <div className="flex w-full items-center justify-end">
+                        <button
+                          onClick={disconnectDrive}
+                          className="px-5 py-2 bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 hover:text-rose-300 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition flex items-center gap-1.5"
+                        >
+                          <LogOut size={11} />
+                          Disconnect
+                        </button>
+                      </div>
                     ) : (
-                      <button
-                        onClick={connectDrive}
-                        disabled={!clientId || !isOnline}
-                        className="px-6 py-2 bg-[#00dbe9] hover:bg-[#00dbe9]/85 text-[#00363a] rounded-full text-[10px] font-extrabold uppercase tracking-widest transition shadow-lg shadow-[#00dbe9]/10 disabled:opacity-30 flex items-center gap-1.5"
-                      >
-                        <Cloud size={11} />
-                        Connect Drive
-                      </button>
+                      <div className="flex flex-col items-center justify-center gap-2 w-full max-w-[280px]">
+                        {/* Official premium 'Continue with Google' button */}
+                        <button
+                          onClick={connectDrive}
+                          disabled={!isOnline}
+                          className="w-full flex items-center justify-center gap-3.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-2.5 rounded-lg text-xs font-bold font-sans transition shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-4.5 h-4.5 flex-shrink-0">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.5 24c0-1.63-.15-3.2-.43-4.75H24v9.03h12.75c-.55 2.93-2.2 5.41-4.68 7.08l7.28 5.64C43.66 36.56 46.5 30.93 46.5 24z"/>
+                            <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.98-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.28-5.64c-2.11 1.42-4.81 2.3-8.61 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                          </svg>
+                          Continue with Google
+                        </button>
+                        
+                        {/* Toggle Advanced settings */}
+                        <button
+                          onClick={() => setShowAdvancedSync(!showAdvancedSync)}
+                          className="text-[9px] uppercase tracking-wider font-extrabold text-[#849495] hover:text-[#00dbe9] transition mt-1"
+                        >
+                          {showAdvancedSync ? "Hide Advanced Settings" : "Configure Custom OAuth client"}
+                        </button>
+                      </div>
                     )}
                   </div>
+
+                  {/* Advanced Custom Client ID settings (collapsible) */}
+                  {!accessToken && showAdvancedSync && (
+                    <div className="border-t border-[#3b494b]/10 pt-4 flex flex-col gap-3.5 animate-in slide-in-from-top-2 duration-200">
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-[#b9cacb] flex items-center gap-1">
+                          <Key size={10} className="text-[#00dbe9]" />
+                          Advanced Google OAuth Client ID
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={clientId}
+                            onChange={(e) => setClientId(e.target.value)}
+                            placeholder="E.g., 123456-abcdef.apps.googleusercontent.com"
+                            className="flex-1 rounded-lg border border-[#3b494b] bg-[#131317] px-3 py-2 text-xs outline-none focus:border-[#00dbe9] text-white placeholder:text-[#555] transition-all font-mono"
+                          />
+                          <button
+                            onClick={() => setClientId(GOOGLE_CLIENT_ID)}
+                            className="px-3.5 py-2 bg-[#252429] hover:bg-[#2d2c34] border border-[#3b494b] rounded-lg text-[10px] font-bold text-[#b9cacb] hover:text-white uppercase tracking-wider transition whitespace-nowrap"
+                            title="Reset to default codebase client ID"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                        <p className="text-[9px] text-[#849495] leading-normal">
+                          For complete self-hosting isolation, you can input your own Google Cloud OAuth 2.0 Client ID here. Make sure your domain is listed under Google Console JavaScript Origins.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
 
                 {/* Cloud Sync Operations Panel */}
