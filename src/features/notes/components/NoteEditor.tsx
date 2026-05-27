@@ -6,6 +6,7 @@ import { EditorView } from "@codemirror/view";
 import { undo, redo } from "@codemirror/commands";
 import type React from "react";
 import type { Note } from "../types/note.types";
+import { PomodoroTimer } from "./PomodoroTimer";
 
 type NoteEditorProps = {
   note: Note | undefined;
@@ -190,16 +191,19 @@ export function NoteEditor({
 
   return (
     <div className="flex flex-col h-full bg-[#131313] text-[#e5e2e1] select-text">
-      {/* Title Input */}
-      <div className="bg-[#131313] flex-shrink-0">
+      {/* Title Input & Pomodoro Focus Timer */}
+      <div className="bg-[#131313] flex-shrink-0 flex items-center justify-between pr-6 border-b border-[#3b494b]/20">
         <input
           value={note.title}
           onChange={(event) =>
             void onChange(note.id, { title: event.target.value })
           }
-          className="w-full bg-transparent px-6 py-4 text-base font-bold text-white outline-none border-none placeholder:text-[#555]"
+          className="w-full bg-transparent pl-6 pr-4 py-4 text-base font-bold text-white outline-none border-none placeholder:text-[#555]"
           placeholder="Untitled note"
         />
+        <div className="flex-shrink-0">
+          <PomodoroTimer />
+        </div>
       </div>
 
       {/* CodeMirror Text Editor */}

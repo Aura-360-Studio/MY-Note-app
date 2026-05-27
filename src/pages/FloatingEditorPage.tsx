@@ -21,6 +21,7 @@ import { useNotesStore } from "../features/notes/stores/useNotesStore";
 import { NOTE_STATUSES } from "../features/notes/types/note.types";
 import { useConfirmationStore } from "../shared/hooks/useConfirmationStore";
 import { ConfirmationModal } from "../shared/components/ConfirmationModal";
+import { SyncConflictModal } from "../shared/components/SyncConflictModal";
 
 export function FloatingEditorPage(): React.JSX.Element {
   const [searchParams] = useSearchParams();
@@ -821,6 +822,7 @@ export function FloatingEditorPage(): React.JSX.Element {
 
       {/* Confirmation Modal */}
       <ConfirmationModal />
+      <SyncConflictModal />
     </div>
   );
 }

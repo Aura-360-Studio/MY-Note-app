@@ -12,4 +12,5 @@ export type Note = {
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+  focusSessions?: number;
 };

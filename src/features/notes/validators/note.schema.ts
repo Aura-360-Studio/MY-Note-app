@@ -10,7 +10,8 @@ export const noteSchema = z.object({
   tags: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),
-  archivedAt: z.string().nullable()
+  archivedAt: z.string().nullable(),
+  focusSessions: z.number().int().nonnegative().optional()
 });
 
 export const userProfileSchema = z.object({

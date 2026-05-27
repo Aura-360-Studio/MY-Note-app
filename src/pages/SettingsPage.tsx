@@ -21,7 +21,11 @@ import {
   CirclePlay,
   HelpCircle,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  Cloud,
+  RefreshCw,
+  LogOut,
+  Key
 } from "lucide-react";
 import { useNotesStore } from "../features/notes/stores/useNotesStore";
 import { useOnlineStatus } from "../shared/hooks/useOnlineStatus";
@@ -29,6 +33,7 @@ import { usePwaInstall } from "../shared/hooks/usePwaInstall";
 import { usePwaUpdate } from "../shared/hooks/usePwaUpdate";
 import { useConfirmationStore } from "../shared/hooks/useConfirmationStore";
 import { LegalModal, LegalModalType } from "../shared/components/LegalModal";
+import { useSyncStore } from "../features/backup/stores/useSyncStore";
 
 function formatTimeDifference(lastBackupStr: string | null): {
   days: number;
@@ -114,6 +119,20 @@ export function SettingsPage({
   const isOnline = useOnlineStatus();
   const { canInstall, installState, promptInstall } = usePwaInstall();
   const { applyUpdate, isUpdateAvailable } = usePwaUpdate();
+
+  const {
+    accessToken,
+    clientId,
+    isSyncing,
+    lastSyncTime: cloudLastSyncTime,
+    syncError,
+    autoSyncEnabled,
+    setClientId,
+    setAutoSync,
+    connectDrive,
+    disconnectDrive,
+    sync: triggerSync
+  } = useSyncStore();
 
   const isStandalone = typeof window !== "undefined" && window.matchMedia("(display-mode: standalone)").matches;
   const isAlreadyInstalled = installState === "installed" || isStandalone;
@@ -258,6 +277,157 @@ export function SettingsPage({
           {/* Left Column: Settings Options (3/4 width) */}
           <main className="lg:col-span-3 flex flex-col gap-6">
             
+            {/* CLOUD SYNC SECTION */}
+            <section className="flex flex-col animate-in fade-in duration-300">
+              <h2 className="text-[10px] font-bold text-[#00dbe9] tracking-[0.14em] uppercase mb-2.5">
+                Cloud Syncing (Google Drive)
+              </h2>
+
+              <div className="rounded-[20px] border border-[#3b494b]/40 bg-[#0c0c0e] overflow-hidden divide-y divide-[#3b494b]/20">
+                
+                {/* Credentials & Connection Info */}
+                <div className="p-5 flex flex-col gap-4 bg-[#131216]/60">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 border ${
+                      accessToken
+                        ? "bg-[#0e2729] border-[#00dbe9]/20 text-[#00dbe9]"
+                        : "bg-[#202024] border-white/5 text-[#849495]"
+                    }`}>
+                      <Cloud size={20} className={accessToken ? "animate-pulse" : ""} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-white">Google Drive Integration</h3>
+                        {accessToken ? (
+                          <span className="flex items-center gap-1 bg-[#00dbe9]/10 border border-[#00dbe9]/20 px-2 py-0.5 rounded-full text-[9px] text-[#00dbe9] font-mono font-bold uppercase">
+                            <Check size={8} /> Connected
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full text-[9px] text-amber-500 font-mono font-bold uppercase">
+                            Not Connected
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#849495] mt-1.5 leading-relaxed">
+                        Encrypt and sync your workspace data directly to your private Google Drive App Folder. Your data remains 100% private to you—we never host, see, or touch your notes.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Google OAuth Client ID Configuration */}
+                  <div className="border-t border-[#3b494b]/10 pt-4 flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5 text-left">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-[#b9cacb] flex items-center gap-1">
+                        <Key size={10} className="text-[#00dbe9]" />
+                        Google OAuth Client ID
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={clientId}
+                          onChange={(e) => setClientId(e.target.value)}
+                          placeholder="E.g., 123456-abcdef.apps.googleusercontent.com"
+                          className="flex-1 rounded-lg border border-[#3b494b] bg-[#131317] px-3 py-2 text-xs outline-none focus:border-[#00dbe9] text-white placeholder:text-[#555] transition-all font-mono"
+                        />
+                        <a
+                          href="https://console.cloud.google.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 bg-[#252429] hover:bg-[#2d2c34] border border-[#3b494b] rounded-lg text-[10px] font-bold text-[#00dbe9] uppercase tracking-wider transition whitespace-nowrap flex items-center gap-1"
+                        >
+                          Console <ExternalLink size={8} />
+                        </a>
+                      </div>
+                      <p className="text-[9px] text-[#849495] leading-normal">
+                        To initiate secure syncing, please supply your Google Cloud Client ID (make sure your domain is listed under Authorized JavaScript Origins).
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Connection Trigger Buttons */}
+                  <div className="flex items-center justify-end gap-3 border-t border-[#3b494b]/10 pt-4">
+                    {syncError && (
+                      <span className="text-[10px] text-rose-400 font-medium mr-auto max-w-[280px] text-left truncate" title={syncError}>
+                        ⚠️ {syncError}
+                      </span>
+                    )}
+
+                    {accessToken ? (
+                      <button
+                        onClick={disconnectDrive}
+                        className="px-5 py-2 bg-rose-500/10 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 hover:text-rose-300 rounded-full text-[10px] font-extrabold uppercase tracking-widest transition flex items-center gap-1.5"
+                      >
+                        <LogOut size={11} />
+                        Disconnect
+                      </button>
+                    ) : (
+                      <button
+                        onClick={connectDrive}
+                        disabled={!clientId || !isOnline}
+                        className="px-6 py-2 bg-[#00dbe9] hover:bg-[#00dbe9]/85 text-[#00363a] rounded-full text-[10px] font-extrabold uppercase tracking-widest transition shadow-lg shadow-[#00dbe9]/10 disabled:opacity-30 flex items-center gap-1.5"
+                      >
+                        <Cloud size={11} />
+                        Connect Drive
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Cloud Sync Operations Panel */}
+                {accessToken && (
+                  <div className="p-5 flex flex-col gap-4 bg-[#131216]/40 animate-in slide-in-from-top-2 duration-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Last Sync Timestamp Display */}
+                      <div className="flex flex-col gap-1 bg-[#1b1a1f] p-3 rounded-lg border border-[#3b494b]/20 text-left">
+                        <span className="text-[#849495] font-semibold uppercase tracking-wider text-[9px]">Last Cloud Sync</span>
+                        <span className="text-white font-bold mt-1">
+                          {cloudLastSyncTime
+                            ? new Date(cloudLastSyncTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+                            : "Pending initial sync upload"}
+                        </span>
+                        <span className="text-[#849495] mt-0.5">
+                          {cloudLastSyncTime ? "Workspace is locked to Google Cloud" : "Pending initial sync upload"}
+                        </span>
+                      </div>
+
+                      {/* Auto-Sync Toggle Control */}
+                      <div className="flex items-center justify-between p-3 bg-[#1b1a1f] rounded-lg border border-[#3b494b]/20">
+                        <div className="text-left flex flex-col gap-0.5">
+                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">Auto-Sync Workspace</span>
+                          <span className="text-[9px] text-[#849495]">Periodically back up changes automatically</span>
+                        </div>
+                        <button
+                          onClick={() => setAutoSync(!autoSyncEnabled)}
+                          className="flex items-center group cursor-pointer focus:outline-none"
+                        >
+                          <div className={`w-8 h-4.5 rounded-full p-0.5 transition-all duration-200 ${
+                            autoSyncEnabled ? "bg-[#00dbe9]" : "bg-transparent border border-[#b9cacb]/80"
+                          } relative flex items-center`}>
+                            <div className={`w-3.5 h-3.5 rounded-full transition-all duration-200 shadow-sm ${
+                              autoSyncEnabled ? "translate-x-3.5 bg-[#00363a]" : "translate-x-0.5 bg-[#b9cacb]"
+                            }`} />
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Manual Sync Trigger Button */}
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={triggerSync}
+                        disabled={isSyncing || !isOnline}
+                        className="px-6 py-2 bg-white hover:bg-white/95 text-black rounded-full text-[10px] font-extrabold uppercase tracking-widest transition flex items-center gap-1.5 shadow-[0_0_12px_rgba(255,255,255,0.4)] disabled:opacity-40"
+                      >
+                        <RefreshCw size={11} className={isSyncing ? "animate-spin" : ""} />
+                        {isSyncing ? "Syncing..." : "Sync Now"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </section>
+
             {/* 4. BACKUP & SYSTEM SECTION */}
             <section className="flex flex-col">
               <h2 className="text-[10px] font-semibold text-[#849495] tracking-[0.14em] uppercase mb-2">

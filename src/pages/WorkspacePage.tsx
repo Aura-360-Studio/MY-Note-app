@@ -48,6 +48,7 @@ import { useOnlineStatus } from "../shared/hooks/useOnlineStatus";
 import { DEFAULT_PROJECT_ID } from "../features/projects/types/project.types";
 import { useConfirmationStore } from "../shared/hooks/useConfirmationStore";
 import { ConfirmationModal } from "../shared/components/ConfirmationModal";
+import { SyncConflictModal } from "../shared/components/SyncConflictModal";
 import { SplashScreen } from "../shared/components/SplashScreen";
 import { SettingsPage } from "./SettingsPage";
 
@@ -1876,6 +1877,7 @@ export function WorkspacePage(): React.JSX.Element {
       )}
 
       <ConfirmationModal />
+      <SyncConflictModal />
       <SplashScreen />
     </main>
   );
