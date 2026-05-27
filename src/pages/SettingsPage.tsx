@@ -341,7 +341,7 @@ export function SettingsPage({
                           disabled={!isOnline}
                           className="w-full flex items-center justify-center gap-3.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-6 py-2.5 rounded-lg text-xs font-bold font-sans transition shadow-sm hover:shadow-md active:scale-[0.98] disabled:opacity-40"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-4.5 h-4.5 flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5 flex-shrink-0">
                             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                             <path fill="#4285F4" d="M46.5 24c0-1.63-.15-3.2-.43-4.75H24v9.03h12.75c-.55 2.93-2.2 5.41-4.68 7.08l7.28 5.64C43.66 36.56 46.5 30.93 46.5 24z"/>
                             <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.98-6.19z"/>
@@ -357,6 +357,25 @@ export function SettingsPage({
                         >
                           {showAdvancedSync ? "Hide Advanced Settings" : "Configure Custom OAuth client"}
                         </button>
+
+                        {/* Informative Configuration Guide Box if placeholder active */}
+                        {clientId.includes("-default") && (
+                          <div className="mt-3 p-3.5 rounded-xl bg-amber-500/[0.04] border border-amber-500/20 text-amber-300 text-left text-[11px] leading-relaxed w-full max-w-[400px] animate-in fade-in slide-in-from-top-1 duration-200">
+                            <p className="font-bold text-white flex items-center gap-1.5">
+                              <ShieldAlert size={13} className="text-amber-500" />
+                              Setup Required: Client ID
+                            </p>
+                            <p className="text-[#849495] mt-1.5">
+                              To activate direct Google Sign-in, please replace the default placeholder in your configuration file:
+                            </p>
+                            <p className="font-mono text-white bg-[#0e0e11] px-2 py-1 rounded border border-[#3b494b]/30 text-[10px] mt-1.5 select-all">
+                              src/shared/config/google.ts
+                            </p>
+                            <p className="text-[#849495] mt-1.5">
+                              with your real Google OAuth Client ID configured for <span className="text-white font-medium">note.aura360studio.com</span>.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
