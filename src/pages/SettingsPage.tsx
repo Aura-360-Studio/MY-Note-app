@@ -34,6 +34,7 @@ import { usePwaUpdate } from "../shared/hooks/usePwaUpdate";
 import { useConfirmationStore } from "../shared/hooks/useConfirmationStore";
 import { LegalModal, LegalModalType } from "../shared/components/LegalModal";
 import { useSyncStore } from "../features/backup/stores/useSyncStore";
+import { GOOGLE_CLIENT_ID } from "../shared/config/google";
 
 function formatTimeDifference(lastBackupStr: string | null): {
   days: number;
