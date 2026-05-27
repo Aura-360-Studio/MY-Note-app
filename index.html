@@ -11,6 +11,32 @@
     <link rel="icon" href="/imges/MY Note logo for Fav.png" type="image/png" />
     <link rel="apple-touch-icon" href="/imges/MY Note logo for Fav.png" />
     <title>MY Note</title>
+    <script>
+      // Self-healing PWA updater for script loading/MIME type errors
+      window.addEventListener('error', function(e) {
+        var isScriptError = e.target && (e.target.tagName === 'SCRIPT' || e.target.src);
+        var isMimeError = e.message && (e.message.indexOf('MIME type') > -1 || e.message.indexOf('Failed to load') > -1);
+        if (isScriptError || isMimeError) {
+          console.warn('Self-healing: script load error detected. Purging PWA cache...');
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for (var i = 0; i < registrations.length; i++) {
+                registrations[i].unregister();
+              }
+              if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                  Promise.all(keys.map(function(k) { return caches.delete(k); })).then(function() {
+                    window.location.href = window.location.origin + window.location.pathname + '?r=' + Date.now();
+                  });
+                });
+              } else {
+                window.location.href = window.location.origin + window.location.pathname + '?r=' + Date.now();
+              }
+            });
+          }
+        }
+      }, true); // Use capturing phase to catch script loading failures which do not bubble
+    </script>
   </head>
   <body>
     <div id="root"></div>
