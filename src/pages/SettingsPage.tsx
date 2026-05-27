@@ -141,7 +141,7 @@ export function SettingsPage({
         "1. If you are using Chrome/Edge, look for the 'Install' icon in the address bar (right side).\n" +
         "2. On Safari (iOS), tap the Share button and select 'Add to Home Screen'.\n" +
         "3. On Safari (macOS), go to File > Add to Dock.\n\n" +
-        "This PWA runs fully offline-first in your browser even without installation!"
+        "This Progressive Web App (PWA) runs fully offline-first in your browser even without installation!"
       );
     }
   };

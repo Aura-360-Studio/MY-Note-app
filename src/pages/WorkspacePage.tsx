@@ -26,7 +26,9 @@ import {
   Type,
   Bell,
   BellRing,
-  ShieldAlert
+  ShieldAlert,
+  ExternalLink,
+  Monitor
 } from "lucide-react";
 import { BoardView } from "../features/board/components/BoardView";
 import { NoteEditor } from "../features/notes/components/NoteEditor";
@@ -80,6 +82,14 @@ export function WorkspacePage(): React.JSX.Element {
   const isOnline = useOnlineStatus();
   const { canInstall, installState, promptInstall } = usePwaInstall();
   const { applyUpdate, isUpdateAvailable } = usePwaUpdate();
+
+  const isPwaInstalled = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+                         window.matchMedia("(display-mode: minimal-ui)").matches ||
+                         (navigator as any).standalone === true;
+    return isStandalone || installState === "installed";
+  }, [installState]);
   const {
     createNote,
     createProject,
@@ -280,6 +290,24 @@ export function WorkspacePage(): React.JSX.Element {
 
   function toggleMenu(name: string): void {
     setOpenMenu(openMenu === name ? null : name);
+  }
+
+  function handlePopOutNotepad(): void {
+    const tabIds = openNoteIds.join(",");
+    const activeId = selectedNoteId || openNoteIds[0] || "";
+    const width = 1024;
+    const height = 720;
+    const left = Math.round((window.screen.width - width) / 2 + ((window.screen as any).availLeft || 0));
+    const top = Math.round((window.screen.height - height) / 2 + ((window.screen as any).availTop || 0));
+    const features = `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=no`;
+    window.open(
+      `/editor?tabs=${encodeURIComponent(tabIds)}&active=${encodeURIComponent(activeId)}`,
+      "my-note-floating-notepad",
+      features
+    );
+    // Close the editor panel in the main window
+    selectNote(null);
+    setIsMaximized(false);
   }
 
   const visibleNotes = useMemo(() => {
@@ -518,9 +546,11 @@ export function WorkspacePage(): React.JSX.Element {
                 ) : (
                   <Bell size={16} />
                 )}
-                {hasBackupAlert && (
+                {hasBackupAlert ? (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 border border-[#131313] animate-pulse" />
-                )}
+                ) : !isPwaInstalled ? (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#00dbe9] border border-[#131313]" />
+                ) : null}
               </button>
 
               {/* Notification Dropdown overlay clickaway handler */}
@@ -546,28 +576,68 @@ export function WorkspacePage(): React.JSX.Element {
                     </button>
                   </div>
 
-                  {hasBackupAlert ? (
+                  {!isPwaInstalled || hasBackupAlert ? (
                     <div className="flex flex-col gap-3">
-                      <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/[0.03] border border-rose-500/20 text-rose-300">
-                        <ShieldAlert size={16} className="text-rose-500 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 text-[11px] leading-relaxed text-left">
-                          <p className="font-semibold text-white">Backup Highly Recommended</p>
-                          <p className="text-[#849495] mt-1">
-                            Your workspace contains unsaved changes since your last backup, posing a data loss risk if browser cache is cleared.
-                          </p>
-                          <p className="mt-2 text-white font-medium">
-                            Last Backed Up: <span className="text-[#849495]">{lastBackupTime ? `${backupDiff.formatted} (${new Date(lastBackupTime).toLocaleDateString()})` : "Never"}</span>
-                          </p>
+                      {/* PWA Install Notification */}
+                      {!isPwaInstalled && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-[#00dbe9]/[0.03] border border-[#00dbe9]/20 text-[#00dbe9]">
+                            <Monitor size={16} className="text-[#00dbe9] flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 text-[11px] leading-relaxed text-left">
+                              <p className="font-semibold text-white">Install Desktop App</p>
+                              <p className="text-[#849495] mt-1">
+                                Install it as a desktop app — since it's a Progressive Web App, you can install it from your browser for a native-like experience with its own window and taskbar icon.
+                              </p>
+                            </div>
+                          </div>
+                          {canInstall && (
+                            <button
+                              onClick={() => {
+                                void promptInstall();
+                                setShowNotificationDropdown(false);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 bg-[#00dbe9]/10 hover:bg-[#00dbe9]/20 text-[#00dbe9] border border-[#00dbe9]/30 font-bold text-[10px] uppercase tracking-wider py-1.5 rounded-full transition duration-150"
+                            >
+                              <Download size={12} />
+                              Install App
+                            </button>
+                          )}
                         </div>
-                      </div>
+                      )}
 
-                      <button
-                        onClick={handleTriggerQuickBackup}
-                        className="w-full flex items-center justify-center gap-2 bg-[#00dbe9] hover:bg-[#00dbe9]/85 text-[#00363a] font-bold text-[10px] uppercase tracking-wider py-2 rounded-full shadow-lg shadow-[#00dbe9]/10 transition duration-150"
-                      >
-                        <Download size={13} />
-                        Backup Now
-                      </button>
+                      {/* Divider if both are present */}
+                      {!isPwaInstalled && hasBackupAlert && (
+                        <div className="border-t border-[#3b494b]/30 my-1" />
+                      )}
+
+                      {/* Backup Alert */}
+                      {hasBackupAlert && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-start gap-2.5 p-3 rounded-lg bg-rose-500/[0.03] border border-rose-500/20 text-rose-300">
+                            <ShieldAlert size={16} className="text-rose-500 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1 text-[11px] leading-relaxed text-left">
+                              <p className="font-semibold text-white">Backup Highly Recommended</p>
+                              <p className="text-[#849495] mt-1">
+                                Your workspace contains unsaved changes since your last backup, posing a data loss risk if browser cache is cleared.
+                              </p>
+                              <p className="mt-2 text-white font-medium">
+                                Last Backed Up: <span className="text-[#849495]">{lastBackupTime ? `${backupDiff.formatted} (${new Date(lastBackupTime).toLocaleDateString()})` : "Never"}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              handleTriggerQuickBackup();
+                              setShowNotificationDropdown(false);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 bg-[#00dbe9] hover:bg-[#00dbe9]/85 text-[#00363a] font-bold text-[10px] uppercase tracking-wider py-2 rounded-full shadow-lg shadow-[#00dbe9]/10 transition duration-150"
+                          >
+                            <Download size={13} />
+                            Backup Now
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-6 text-center text-[11px] text-[#849495] gap-2">
@@ -972,7 +1042,13 @@ export function WorkspacePage(): React.JSX.Element {
               <BoardView
                 notes={visibleNotes}
                 selectedNoteId={selectedNoteId}
-                onSelectNote={selectNote}
+                onSelectNote={(id) => {
+                  // If the note is minimized, restore it
+                  if (minimizedNoteIds.includes(id)) {
+                    setMinimizedNoteIds((prev) => prev.filter((mid) => mid !== id));
+                  }
+                  selectNote(id);
+                }}
                 onMoveNote={moveNote}
               />
             </div>
@@ -1071,6 +1147,13 @@ export function WorkspacePage(): React.JSX.Element {
                   title="Minimize"
                 >
                   –
+                </button>
+                <button
+                  onClick={() => handlePopOutNotepad()}
+                  className="w-8 h-8 rounded hover:bg-[#00dbe9]/15 hover:text-[#00dbe9] flex items-center justify-center transition"
+                  title="Pop out notepad to floating window"
+                >
+                  <ExternalLink size={13} />
                 </button>
                 <button
                   onClick={() => setIsMaximized(!isMaximized)}
@@ -1746,6 +1829,8 @@ export function WorkspacePage(): React.JSX.Element {
 
                 {/* Divider */}
                 <div className="w-[1px] h-5 bg-[#3b494b]/80" />
+
+
 
                 {/* Close button */}
                 <button

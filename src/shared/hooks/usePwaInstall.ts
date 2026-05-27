@@ -13,7 +13,13 @@ export function usePwaInstall(): {
   promptInstall: () => Promise<void>;
 } {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installState, setInstallState] = useState<InstallState>("idle");
+  const [installState, setInstallState] = useState<InstallState>(() => {
+    try {
+      return localStorage.getItem("pwa_installed") === "true" ? "installed" : "idle";
+    } catch {
+      return "idle";
+    }
+  });
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event): void => {
@@ -24,6 +30,11 @@ export function usePwaInstall(): {
     const onAppInstalled = (): void => {
       setInstallState("installed");
       setDeferredPrompt(null);
+      try {
+        localStorage.setItem("pwa_installed", "true");
+      } catch (e) {
+        console.error("Failed to save PWA install state:", e);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
@@ -43,7 +54,14 @@ export function usePwaInstall(): {
     }
     await deferredPrompt.prompt();
     const choice = await deferredPrompt.userChoice;
-    setInstallState(choice.outcome);
+    setInstallState(choice.outcome === "accepted" ? "installed" : choice.outcome);
+    if (choice.outcome === "accepted") {
+      try {
+        localStorage.setItem("pwa_installed", "true");
+      } catch (e) {
+        console.error("Failed to save PWA install state:", e);
+      }
+    }
     setDeferredPrompt(null);
   }
 

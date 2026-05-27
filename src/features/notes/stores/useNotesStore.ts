@@ -32,6 +32,8 @@ type NotesState = {
   recordEdit: () => void;
 };
 
+const syncChannel = typeof window !== "undefined" ? new BroadcastChannel("my-note-sync") : null;
+
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   profile: {
@@ -58,12 +60,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
   load: async () => {
     const [notes, profile, projects] = await Promise.all([noteRepository.list(), profileRepository.get(), projectRepository.list()]);
+    const currentSelectedNote = get().selectedNoteId;
+    const currentSelectedProject = get().selectedProjectId;
     set({
       notes,
       profile,
       projects,
-      selectedProjectId: projects[0]?.id ?? DEFAULT_PROJECT_ID,
-      selectedNoteId: null,
+      selectedProjectId: currentSelectedProject && projects.some((p) => p.id === currentSelectedProject) ? currentSelectedProject : (projects[0]?.id ?? DEFAULT_PROJECT_ID),
+      selectedNoteId: currentSelectedNote && notes.some((n) => n.id === currentSelectedNote) ? currentSelectedNote : null,
       isLoaded: true
     });
   },
@@ -77,6 +81,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       selectedNoteId: title ? null : note.id
     }));
     get().recordEdit();
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   selectNote: (id) => set({ selectedNoteId: id }),
   updateNote: async (id, changes) => {
@@ -85,11 +90,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const selected = get().selectedNoteId;
     set({ notes, selectedNoteId: selected && notes.some((n) => n.id === selected) ? selected : null });
     get().recordEdit();
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   moveNote: async (id, status) => {
     await noteRepository.move(id, status);
     set({ notes: await noteRepository.list() });
     get().recordEdit();
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   removeNote: async (id) => {
     await noteRepository.remove(id);
@@ -97,6 +104,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     const selected = get().selectedNoteId;
     set({ notes, selectedNoteId: selected === id ? null : selected });
     get().recordEdit();
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   replaceAll: async (notes, projects) => {
     await noteRepository.replaceAll(notes);
@@ -118,14 +126,17 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       lastBackupTime: now,
       lastEditTime: now
     });
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   updateProfile: async (changes) => {
     const profile = await profileRepository.update(changes);
     set({ profile });
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   replaceProfile: async (profile) => {
     const replaced = await profileRepository.replace(profile);
     set({ profile: replaced });
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   selectProject: (projectId) => {
     set({
@@ -140,6 +151,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     }
     const project = await projectRepository.create(trimmed);
     set((state) => ({ projects: [...state.projects, project], selectedProjectId: project.id }));
+    syncChannel?.postMessage({ type: "sync-notes" });
   },
   removeProject: async (projectId) => {
     if (projectId === DEFAULT_PROJECT_ID) {
@@ -155,5 +167,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
       selectedProjectId: nextProjectId,
       selectedNoteId: null
     });
+    syncChannel?.postMessage({ type: "sync-notes" });
   }
 }));
+
+if (syncChannel) {
+  syncChannel.onmessage = (event) => {
+    if (event.data?.type === "sync-notes") {
+      void useNotesStore.getState().load();
+    }
+  };
+}
