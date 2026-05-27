@@ -213,30 +213,69 @@ export function SettingsPage({
 
   const handleForceReload = () => {
     showConfirmModal({
-      title: "Hard Refresh & Reset System",
-      message: "This will unregister all offline service workers, delete service worker caches, and permanently erase your local IndexedDB database. Doing so will delete all your notes, projects, and user configurations, giving you a completely clean, empty application.",
-      helperText: "It is highly recommended that you take a full JSON backup of your workspace before proceeding. Do you still want to continue?",
-      confirmText: "Confirm & Hard Refresh",
+      title: "Hard Refresh Application",
+      message: "This will unregister active offline service workers and purge the browser's asset cache to retrieve the latest version of the app from the server.",
+      helperText: "Your notes, projects, settings, and other local data will NOT be deleted.",
+      confirmText: "Hard Refresh",
       cancelText: "Cancel",
       onConfirm: async () => {
-        if ("serviceWorker" in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.unregister();
-          }
-        }
-        if ("caches" in window) {
-          const keys = await caches.keys();
-          for (const key of keys) {
-            await caches.delete(key);
-          }
-        }
         try {
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            for (const key of keys) {
+              await caches.delete(key);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to clear PWA cache:", e);
+        }
+        // Force bypass browser cache
+        window.location.href = window.location.origin + window.location.pathname + "?v=" + Date.now();
+      }
+    });
+  };
+
+  const handleFactoryReset = () => {
+    showConfirmModal({
+      title: "Factory Reset & Wipe Database",
+      message: "This will permanently delete all your local notes, projects, user configurations, and IndexedDB database files. You will lose everything in this workspace.",
+      helperText: "It is highly recommended that you take a full JSON backup of your notes before proceeding. This action CANNOT be undone.",
+      confirmText: "Confirm & Reset All",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          if ("serviceWorker" in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            for (const key of keys) {
+              await caches.delete(key);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to clear service workers or caches:", e);
+        }
+
+        try {
+          const { db } = await import("../data/db");
+          db.close();
+          await new Promise((resolve) => setTimeout(resolve, 500));
           window.indexedDB.deleteDatabase("my-note-db");
         } catch (e) {
           console.error("Failed to clear local IndexedDB database", e);
         }
-        window.location.reload();
+
+        window.location.href = window.location.origin + window.location.pathname + "?reset=" + Date.now();
       }
     });
   };
@@ -639,6 +678,27 @@ export function SettingsPage({
                     className="border border-[#3b191c] hover:border-rose-500/40 text-white/90 hover:bg-rose-500/10 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 hover:scale-[1.03] active:scale-95"
                   >
                     Force Reload
+                  </button>
+                </div>
+
+                {/* Row 4: Factory Reset System */}
+                <div className="p-5 flex items-center justify-between bg-[#150a0b]/40">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-[14px] bg-[#220d0f] border border-red-500/10 text-red-500 flex items-center justify-center flex-shrink-0">
+                      <ShieldAlert size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-red-400">Factory Reset System</h3>
+                      <p className="text-[10px] text-[#849495] mt-0.5 uppercase tracking-wider font-semibold">
+                        Delete database & Wipe data
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleFactoryReset}
+                    className="border border-[#421b1e] hover:border-red-500/40 text-red-400 hover:bg-red-500/10 px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 hover:scale-[1.03] active:scale-95"
+                  >
+                    Wipe All Data
                   </button>
                 </div>
 
