@@ -324,8 +324,115 @@ export function SettingsPage({
           {/* Left Column: Settings Options (3/4 width) */}
           <main className="lg:col-span-3 flex flex-col gap-6">
             
-            {/* CLOUD SYNC SECTION */}
+            {/* 4. BACKUP & SYSTEM SECTION */}
             <section className="flex flex-col animate-in fade-in duration-300">
+              <h2 className="text-[10px] font-semibold text-[#849495] tracking-[0.14em] uppercase mb-2">
+                Data & Backups
+              </h2>
+
+              <div className="flex flex-col gap-2.5">
+                
+                {/* Backup / Restore card */}
+                <div className="rounded-xl border border-[#3b494b]/40 bg-[#201f24] overflow-hidden">
+                  <button
+                    onClick={() => toggleSection("backup")}
+                    className="w-full flex items-center justify-between p-4 hover:bg-[#2a2930] transition text-left"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="p-2 rounded-lg bg-[#2b2a31] border border-[#3b494b]/40 text-[#00dbe9]">
+                        <Upload size={16} />
+                      </div>
+                      <div>
+                        <h3 className="text-[13px] font-medium text-white">Import & export workspace</h3>
+                        <p className="text-[11px] text-[#849495] mt-0.5">Safeguard notes, stages, and settings via a backup file</p>
+                      </div>
+                    </div>
+                    <div className="text-[#849495]">
+                      {expandedSection === "backup" ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    </div>
+                  </button>
+
+                  {expandedSection === "backup" && (
+                    <div className="px-5 pb-5 pt-3 border-t border-[#3b494b]/20 bg-[#1b1a1f] flex flex-col gap-3 animate-in slide-in-from-top-1 duration-200">
+                      <p className="text-[11px] text-[#849495]">
+                        Exporting downloads a structured JSON containing all your active projects, tasks, profile information, and config schemas.
+                      </p>
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="mono-ui inline-flex items-center justify-center gap-2 rounded-lg border border-[#3b494b] hover:border-[#00dbe9] hover:text-[#00dbe9] bg-[#252429] px-4 py-2 text-xs font-semibold text-[#b9cacb] transition-all duration-150"
+                        >
+                          <Upload size={13} />
+                          Import Backup
+                        </button>
+                        <button
+                          onClick={onExport}
+                          className="mono-ui inline-flex items-center justify-center gap-2 rounded-lg border border-[#3b494b] hover:border-[#00dbe9] hover:text-[#00dbe9] bg-[#252429] px-4 py-2 text-xs font-semibold text-[#b9cacb] transition-all duration-150"
+                        >
+                          <Download size={13} />
+                          Export Backup
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Local Storage & Data Safety warning card */}
+                <div className="rounded-xl border border-[#3b494b]/40 bg-[#201f24] p-5 flex flex-col gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 mt-0.5 flex-shrink-0">
+                      <ShieldAlert size={16} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-[13px] font-semibold text-white">Local Storage & Data Safety</h3>
+                      <p className="text-[11px] text-[#849495] mt-1.5 leading-relaxed">
+                        MY Note is a fully local, offline-first application. All your notes, projects, and custom configurations are stored securely inside your browser's local database (IndexedDB). Since there is no cloud database synchronization, clearing your browser cache, website storage, or cookies will permanently delete all your data. To safeguard your work, it is highly recommended to download a JSON backup regularly, especially after writing or editing critical notes.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#3b494b]/20 pt-4 flex flex-col gap-3.5">
+                    <h4 className="mono-ui text-[10px] uppercase tracking-wider text-[#00dbe9] font-bold">
+                      Backup Logging & Alerts
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
+                      {/* Last Backup Log */}
+                      <div className="flex flex-col gap-1 bg-[#1b1a1f] p-3 rounded-lg border border-[#3b494b]/20">
+                        <span className="text-[#849495] font-medium uppercase tracking-wider text-[9px]">Last Backed Up</span>
+                        <span className="text-white font-semibold mt-1">
+                          {lastBackupTime ? new Date(lastBackupTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}
+                        </span>
+                        <span className="text-[#849495] mt-0.5">
+                          {backupDiff.formatted}
+                        </span>
+                      </div>
+
+                      {/* Backup Required Warning */}
+                      <div className={`flex flex-col justify-center p-3 rounded-lg border ${
+                        hasUnsavedEdits 
+                          ? "bg-rose-500/[0.03] border-rose-500/20 text-rose-300"
+                          : "bg-emerald-500/[0.03] border-emerald-500/20 text-emerald-300"
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${hasUnsavedEdits ? "bg-rose-500 animate-pulse" : "bg-emerald-500"}`} />
+                          <span className="font-semibold uppercase tracking-wider text-[9px] text-[#849495]">Status Alert</span>
+                        </div>
+                        <p className="mt-1.5 leading-relaxed text-[11px]">
+                          {hasUnsavedEdits 
+                            ? "Warning: You have unsaved workspace modifications since your last backup. Please download a backup to prevent data loss."
+                            : "Your workspace is fully backed up and up to date. No pending modifications."
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* CLOUD SYNC SECTION */}
+            <section className="flex flex-col">
               <h2 className="text-[10px] font-bold text-[#00dbe9] tracking-[0.14em] uppercase mb-2.5">
                 Cloud Syncing (Google Drive)
               </h2>
@@ -511,113 +618,6 @@ export function SettingsPage({
                   </div>
                 )}
 
-              </div>
-            </section>
-
-            {/* 4. BACKUP & SYSTEM SECTION */}
-            <section className="flex flex-col">
-              <h2 className="text-[10px] font-semibold text-[#849495] tracking-[0.14em] uppercase mb-2">
-                Data & Backups
-              </h2>
-
-              <div className="flex flex-col gap-2.5">
-                
-                {/* Backup / Restore card */}
-                <div className="rounded-xl border border-[#3b494b]/40 bg-[#201f24] overflow-hidden">
-                  <button
-                    onClick={() => toggleSection("backup")}
-                    className="w-full flex items-center justify-between p-4 hover:bg-[#2a2930] transition text-left"
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <div className="p-2 rounded-lg bg-[#2b2a31] border border-[#3b494b]/40 text-[#00dbe9]">
-                        <Upload size={16} />
-                      </div>
-                      <div>
-                        <h3 className="text-[13px] font-medium text-white">Import & export workspace</h3>
-                        <p className="text-[11px] text-[#849495] mt-0.5">Safeguard notes, stages, and settings via a backup file</p>
-                      </div>
-                    </div>
-                    <div className="text-[#849495]">
-                      {expandedSection === "backup" ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    </div>
-                  </button>
-
-                  {expandedSection === "backup" && (
-                    <div className="px-5 pb-5 pt-3 border-t border-[#3b494b]/20 bg-[#1b1a1f] flex flex-col gap-3 animate-in slide-in-from-top-1 duration-200">
-                      <p className="text-[11px] text-[#849495]">
-                        Exporting downloads a structured JSON containing all your active projects, tasks, profile information, and config schemas.
-                      </p>
-                      <div className="flex items-center gap-3 mt-2 flex-wrap">
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="mono-ui inline-flex items-center justify-center gap-2 rounded-lg border border-[#3b494b] hover:border-[#00dbe9] hover:text-[#00dbe9] bg-[#252429] px-4 py-2 text-xs font-semibold text-[#b9cacb] transition-all duration-150"
-                        >
-                          <Upload size={13} />
-                          Import Backup
-                        </button>
-                        <button
-                          onClick={onExport}
-                          className="mono-ui inline-flex items-center justify-center gap-2 rounded-lg border border-[#3b494b] hover:border-[#00dbe9] hover:text-[#00dbe9] bg-[#252429] px-4 py-2 text-xs font-semibold text-[#b9cacb] transition-all duration-150"
-                        >
-                          <Download size={13} />
-                          Export Backup
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Local Storage & Data Safety warning card */}
-                <div className="rounded-xl border border-[#3b494b]/40 bg-[#201f24] p-5 flex flex-col gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 mt-0.5 flex-shrink-0">
-                      <ShieldAlert size={16} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-[13px] font-semibold text-white">Local Storage & Data Safety</h3>
-                      <p className="text-[11px] text-[#849495] mt-1.5 leading-relaxed">
-                        MY Note is a fully local, offline-first application. All your notes, projects, and custom configurations are stored securely inside your browser's local database (IndexedDB). Since there is no cloud database synchronization, clearing your browser cache, website storage, or cookies will permanently delete all your data. To safeguard your work, it is highly recommended to download a JSON backup regularly, especially after writing or editing critical notes.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-[#3b494b]/20 pt-4 flex flex-col gap-3.5">
-                    <h4 className="mono-ui text-[10px] uppercase tracking-wider text-[#00dbe9] font-bold">
-                      Backup Logging & Alerts
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px]">
-                      {/* Last Backup Log */}
-                      <div className="flex flex-col gap-1 bg-[#1b1a1f] p-3 rounded-lg border border-[#3b494b]/20">
-                        <span className="text-[#849495] font-medium uppercase tracking-wider text-[9px]">Last Backed Up</span>
-                        <span className="text-white font-semibold mt-1">
-                          {lastBackupTime ? new Date(lastBackupTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}
-                        </span>
-                        <span className="text-[#849495] mt-0.5">
-                          {backupDiff.formatted}
-                        </span>
-                      </div>
-
-                      {/* Backup Required Warning */}
-                      <div className={`flex flex-col justify-center p-3 rounded-lg border ${
-                        hasUnsavedEdits 
-                          ? "bg-rose-500/[0.03] border-rose-500/20 text-rose-300"
-                          : "bg-emerald-500/[0.03] border-emerald-500/20 text-emerald-300"
-                      }`}>
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${hasUnsavedEdits ? "bg-rose-500 animate-pulse" : "bg-emerald-500"}`} />
-                          <span className="font-semibold uppercase tracking-wider text-[9px] text-[#849495]">Status Alert</span>
-                        </div>
-                        <p className="mt-1.5 leading-relaxed text-[11px]">
-                          {hasUnsavedEdits 
-                            ? "Warning: You have unsaved workspace modifications since your last backup. Please download a backup to prevent data loss."
-                            : "Your workspace is fully backed up and up to date. No pending modifications."
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </section>
 
