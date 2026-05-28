@@ -1057,22 +1057,18 @@ export function SettingsPage({
                   <ExternalLink size={10} />
                 </a>
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openLegalModal("services");
-                  }}
+                  href="/services"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[#00dbe9] hover:underline cursor-pointer"
                 >
                   Services Agreement
                   <ExternalLink size={10} />
                 </a>
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openLegalModal("privacy");
-                  }}
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-[#00dbe9] hover:underline cursor-pointer"
                 >
                   Privacy Statement
