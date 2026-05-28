@@ -112,7 +112,7 @@ export const useSyncStore = create<SyncState>((set, get) => {
               return;
             }
             if (response.access_token) {
-              set({ accessToken: response.access_token });
+              set({ accessToken: response.access_token, isSyncing: false });
               void get().sync();
             }
           }
