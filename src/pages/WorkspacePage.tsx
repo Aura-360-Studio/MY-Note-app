@@ -835,6 +835,11 @@ export function WorkspacePage(): React.JSX.Element {
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
+          <div className="px-4 pt-2.5 pb-1 flex items-center justify-center gap-2.5 border-t border-[#3b494b]/30 text-[9px] text-[#849495]/70 uppercase tracking-widest font-semibold mono-ui select-none">
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-[#00dbe9] hover:underline transition duration-150">Privacy</a>
+            <span>•</span>
+            <a href="/services" target="_blank" rel="noopener noreferrer" className="hover:text-[#00dbe9] hover:underline transition duration-150">Terms</a>
+          </div>
         </div>
       </aside>
 
