@@ -35,6 +35,8 @@ import { useConfirmationStore } from "../shared/hooks/useConfirmationStore";
 import { LegalModal, LegalModalType } from "../shared/components/LegalModal";
 import { useSyncStore } from "../features/backup/stores/useSyncStore";
 import { GOOGLE_CLIENT_ID } from "../shared/config/google";
+import { HelpModal } from "../shared/components/HelpModal";
+import { FeedbackModal } from "../shared/components/FeedbackModal";
 
 function formatTimeDifference(lastBackupStr: string | null): {
   days: number;
@@ -147,6 +149,10 @@ export function SettingsPage({
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalModalType, setLegalModalType] = useState<LegalModalType | null>(null);
   const [showAdvancedSync, setShowAdvancedSync] = useState(false);
+
+  // Help and Feedback modal states
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   const openLegalModal = (type: LegalModalType) => {
     setLegalModalType(type);
@@ -1087,14 +1093,14 @@ export function SettingsPage({
 
               <div className="border-t border-[#3b494b]/30 pt-4 flex flex-col gap-2">
                 <button
-                  onClick={() => alert("Thank you for using MY Note! Your feedback keeps us improving.")}
+                  onClick={() => setIsFeedbackModalOpen(true)}
                   className="w-full flex items-center justify-center gap-2 bg-[#2d2c34] hover:bg-[#383740] border border-[#3b494b]/40 rounded-lg py-2 text-xs font-semibold text-[#b9cacb] hover:text-white transition duration-150"
                 >
                   <MessageSquare size={13} />
                   Send feedback
                 </button>
                 <button
-                  onClick={() => alert("Keyboard Shortcuts:\n- Ctrl+N: New Note\n- Ctrl+S: Save/Export\n- Ctrl+W: Close Note\n- Ctrl+F: Search")}
+                  onClick={() => setIsHelpModalOpen(true)}
                   className="w-full flex items-center justify-center gap-2 bg-[#2d2c34] hover:bg-[#383740] border border-[#3b494b]/40 rounded-lg py-2 text-xs font-semibold text-[#b9cacb] hover:text-white transition duration-150"
                 >
                   <HelpCircle size={13} />
@@ -1113,6 +1119,16 @@ export function SettingsPage({
         isOpen={isLegalModalOpen}
         type={legalModalType}
         onClose={() => setIsLegalModalOpen(false)}
+      />
+
+      <HelpModal
+        isOpen={isHelpModalOpen}
+        onClose={() => setIsHelpModalOpen(false)}
+      />
+
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
       />
     </div>
   );
