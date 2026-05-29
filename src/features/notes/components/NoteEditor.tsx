@@ -2,11 +2,116 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { EditorView } from "@codemirror/view";
+import { EditorView, Decoration, ViewPlugin, WidgetType } from "@codemirror/view";
+import type { DecorationSet } from "@codemirror/view";
+import { RangeSetBuilder } from "@codemirror/state";
 import { undo, redo } from "@codemirror/commands";
 import type React from "react";
 import type { Note } from "../types/note.types";
 import { PomodoroTimer } from "./PomodoroTimer";
+
+class ColorWidget extends WidgetType {
+  constructor(readonly color: string) {
+    super();
+  }
+
+  eq(other: ColorWidget) {
+    return this.color === other.color;
+  }
+
+  toDOM() {
+    const span = document.createElement("span");
+    span.style.display = "inline-block";
+    span.style.width = "0.9em";
+    span.style.height = "0.9em";
+    span.style.marginRight = "4px";
+    span.style.marginLeft = "2px";
+    span.style.verticalAlign = "middle";
+    span.style.border = "1px solid rgba(128, 128, 128, 0.5)";
+    span.style.borderRadius = "2px";
+    span.style.backgroundColor = this.color;
+    span.style.cursor = "default";
+    span.title = this.color;
+    return span;
+  }
+
+  ignoreEvent() {
+    return true;
+  }
+}
+
+function getCssColor(match: string): string | null {
+  const trimmed = match.trim();
+  // 1. Starts with #
+  if (trimmed.startsWith("#")) {
+    const hex = trimmed.slice(1);
+    if (/^[0-9a-fA-F]{3,4}$|^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(hex)) {
+      return trimmed;
+    }
+  }
+  // 2. Standalone hex (no hash)
+  if (/^[0-9a-fA-F]{3}$|^[0-9a-fA-F]{6}$/.test(trimmed)) {
+    // Must contain at least one digit to avoid matching common words like bed, coffee, etc.
+    if (/[0-9]/.test(trimmed)) {
+      return `#${trimmed}`;
+    }
+  }
+  // 3. rgb/rgba
+  if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/i.test(trimmed)) {
+    return trimmed;
+  }
+  // 4. hsl/hsla
+  if (/^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[\d.]+\s*)?\)$/i.test(trimmed)) {
+    return trimmed;
+  }
+  return null;
+}
+
+const colorDecorationPlugin = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
+      this.decorations = this.computeDecorations(view);
+    }
+
+    update(update: any) {
+      if (update.docChanged || update.viewportChanged) {
+        this.decorations = this.computeDecorations(update.view);
+      }
+    }
+
+    computeDecorations(view: EditorView): DecorationSet {
+      const builder = new RangeSetBuilder<Decoration>();
+      
+      for (const { from, to } of view.visibleRanges) {
+        const text = view.state.doc.sliceString(from, to);
+        
+        // Match hex colors (with or without #) and rgb/rgba/hsl/hsla functions
+        const regex = /#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b|\b([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b|rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)|hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[\d.]+\s*)?\)/gi;
+        
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          const matchStr = match[0];
+          const color = getCssColor(matchStr);
+          if (color) {
+            const start = from + match.index;
+            const deco = Decoration.widget({
+              widget: new ColorWidget(color),
+              side: -1
+            });
+            builder.add(start, start, deco);
+          }
+        }
+      }
+      
+      return builder.finish();
+    }
+  },
+  {
+    decorations: (v) => v.decorations
+  }
+);
 
 type NoteEditorProps = {
   note: Note | undefined;
@@ -182,7 +287,7 @@ export function NoteEditor({
   };
 
   const extensions = useMemo(() => {
-    const list: any[] = [markdown()];
+    const list: any[] = [markdown(), colorDecorationPlugin];
     if (wordWrap) {
       list.push(EditorView.lineWrapping);
     }

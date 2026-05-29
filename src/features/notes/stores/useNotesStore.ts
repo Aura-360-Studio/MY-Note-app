@@ -34,6 +34,21 @@ type NotesState = {
 
 const syncChannel = typeof window !== "undefined" ? new BroadcastChannel("my-note-sync") : null;
 
+// Keep track of pending database updates and their timeouts per note ID
+const pendingUpdates = new Map<string, { changes: Partial<Note>; timeoutId: any }>();
+
+const flushNoteSave = async (id: string) => {
+  const pending = pendingUpdates.get(id);
+  if (!pending) return;
+  clearTimeout(pending.timeoutId);
+  pendingUpdates.delete(id);
+  try {
+    await noteRepository.update(id, pending.changes);
+  } catch (err) {
+    console.error("Failed to flush note save:", err);
+  }
+};
+
 export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   profile: {
@@ -83,22 +98,66 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     get().recordEdit();
     syncChannel?.postMessage({ type: "sync-notes" });
   },
-  selectNote: (id) => set({ selectedNoteId: id }),
+  selectNote: (id) => {
+    const current = get().selectedNoteId;
+    if (current && pendingUpdates.has(current)) {
+      void flushNoteSave(current);
+    }
+    set({ selectedNoteId: id });
+  },
   updateNote: async (id, changes) => {
-    await noteRepository.update(id, changes);
-    const notes = await noteRepository.list();
-    const selected = get().selectedNoteId;
-    set({ notes, selectedNoteId: selected && notes.some((n) => n.id === selected) ? selected : null });
-    get().recordEdit();
-    syncChannel?.postMessage({ type: "sync-notes" });
+    // 1. Update local Zustand state synchronously so UI responds instantly without cursor jumps
+    const now = new Date().toISOString();
+    set((state) => {
+      const notes = state.notes.map((n) =>
+        n.id === id ? { ...n, ...changes, updatedAt: now } : n
+      );
+      const selected = state.selectedNoteId;
+      return {
+        notes,
+        selectedNoteId: selected && notes.some((n) => n.id === selected) ? selected : null
+      };
+    });
+
+    // 2. Queue/debounce database write to avoid concurrent overlap/race conditions
+    let pending = pendingUpdates.get(id);
+    if (pending) {
+      clearTimeout(pending.timeoutId);
+      pending.changes = { ...pending.changes, ...changes };
+    } else {
+      pending = { changes, timeoutId: null };
+      pendingUpdates.set(id, pending);
+    }
+
+    pending.timeoutId = setTimeout(async () => {
+      const currentPending = pendingUpdates.get(id);
+      if (!currentPending) return;
+      pendingUpdates.delete(id);
+
+      try {
+        await noteRepository.update(id, currentPending.changes);
+        get().recordEdit();
+        syncChannel?.postMessage({ type: "sync-notes" });
+      } catch (err) {
+        console.error("Failed to save note:", err);
+      }
+    }, 300);
   },
   moveNote: async (id, status) => {
+    if (pendingUpdates.has(id)) {
+      await flushNoteSave(id);
+    }
     await noteRepository.move(id, status);
     set({ notes: await noteRepository.list() });
     get().recordEdit();
     syncChannel?.postMessage({ type: "sync-notes" });
   },
   removeNote: async (id) => {
+    const pending = pendingUpdates.get(id);
+    if (pending) {
+      clearTimeout(pending.timeoutId);
+      pendingUpdates.delete(id);
+    }
     await noteRepository.remove(id);
     const notes = await noteRepository.list();
     const selected = get().selectedNoteId;
@@ -177,4 +236,13 @@ if (syncChannel) {
       void useNotesStore.getState().load();
     }
   };
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", () => {
+    for (const [id, pending] of pendingUpdates.entries()) {
+      clearTimeout(pending.timeoutId);
+      void noteRepository.update(id, pending.changes);
+    }
+  });
 }
