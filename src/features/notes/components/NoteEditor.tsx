@@ -113,6 +113,50 @@ const colorDecorationPlugin = ViewPlugin.fromClass(
   }
 );
 
+const selectLineGutterExtension = EditorView.domEventHandlers({
+  mousedown(event, view) {
+    if (event.button !== 0) return false;
+
+    const target = event.target as HTMLElement;
+    const gutter = target.closest(".cm-gutters");
+    if (!gutter) return false;
+
+    // Use posAtCoords to find the text line. We query just inside the content DOM
+    const contentRect = view.contentDOM.getBoundingClientRect();
+    const x = contentRect.left + 10;
+    const y = event.clientY;
+
+    const pos = view.posAtCoords({ x, y });
+    if (pos === null) return false;
+
+    try {
+      const line = view.state.doc.lineAt(pos);
+      const anchor = line.from;
+      const head = Math.min(line.to + 1, view.state.doc.length);
+
+      view.dispatch({
+        selection: { anchor, head },
+        scrollIntoView: true
+      });
+
+      event.preventDefault();
+      return true;
+    } catch (e) {
+      console.error("Failed to select line from gutter click:", e);
+    }
+    return false;
+  }
+});
+
+const gutterStyleExtension = EditorView.theme({
+  ".cm-gutters": {
+    cursor: "pointer !important"
+  },
+  ".cm-gutterElement": {
+    cursor: "pointer !important"
+  }
+});
+
 type NoteEditorProps = {
   note: Note | undefined;
   onChange: (id: string, changes: Partial<Note>) => Promise<void>;
@@ -287,7 +331,12 @@ export function NoteEditor({
   };
 
   const extensions = useMemo(() => {
-    const list: any[] = [markdown(), colorDecorationPlugin];
+    const list: any[] = [
+      markdown(),
+      colorDecorationPlugin,
+      selectLineGutterExtension,
+      gutterStyleExtension
+    ];
     if (wordWrap) {
       list.push(EditorView.lineWrapping);
     }
